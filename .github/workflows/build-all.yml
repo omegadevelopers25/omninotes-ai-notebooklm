@@ -1,0 +1,152 @@
+name: Build Windows App & Android APK & GitHub Release
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # -------------------------------------------------------------
+  # JOB 1: Build Android APK
+  # -------------------------------------------------------------
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Setup Java JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Initialize & Sync Capacitor Android Project
+        run: |
+          npx cap add android || true
+          npx cap sync android
+
+      - name: Make Gradle Executable
+        run: chmod +x android/gradlew
+
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Prepare APK Artifact
+        run: |
+          mkdir -p build-output
+          cp android/app/build/outputs/apk/debug/app-debug.apk build-output/OmniNotes-AI-v1.0.0.apk
+
+      - name: Upload Android APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniNotes-AI-Android-APK
+          path: build-output/OmniNotes-AI-v1.0.0.apk
+
+  # -------------------------------------------------------------
+  # JOB 2: Build Windows Desktop App (.exe)
+  # -------------------------------------------------------------
+  build-windows:
+    name: Build Windows App (.exe)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Build Windows Executables via Electron Builder
+        run: npx electron-builder --win nsis portable --publish never
+
+      - name: Prepare Windows Executable Artifacts
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path win-output
+          Get-ChildItem -Path dist/*.exe | Copy-Item -Destination win-output/
+
+      - name: Upload Windows Executables Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniNotes-AI-Windows-Exe
+          path: win-output/*.exe
+
+  # -------------------------------------------------------------
+  # JOB 3: Publish Unified GitHub Release
+  # -------------------------------------------------------------
+  publish-release:
+    name: Publish Release (Windows & Android)
+    needs: [build-android, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/master') || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Download Android APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: OmniNotes-AI-Android-APK
+          path: release-assets
+
+      - name: Download Windows Exe Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: OmniNotes-AI-Windows-Exe
+          path: release-assets
+
+      - name: Display Release Assets
+        run: ls -la release-assets
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: OmniNotes AI v1.0.0 (Windows & Android)
+          body: |
+            ## 🚀 OmniNotes AI v1.0.0 Release
+            
+            Automatically generated native builds for **Windows Desktop** and **Android**.
+            
+            ### 💻 Windows Downloads:
+            - **`OmniNotes AI Setup 1.0.0.exe`** — Windows Installer Executable
+            - **`OmniNotes AI 1.0.0.exe`** — Portable Windows Application (No installation required)
+            
+            ### 📱 Android Download:
+            - **`OmniNotes-AI-v1.0.0.apk`** — Android Application Package
+            
+            ---
+            
+            ### 🌟 Features:
+            - 🌐 Web Article Ingestion & Cleaner
+            - 📹 YouTube Transcript Extraction
+            - 📄 PDF & Document Reader
+            - 🧠 Gemini AI & Smart Offline Synthesis
+            - 📋 1-Click Copy & Sync for Gemini Notebook (NotebookLM)
+            - 🎙️ Audio Podcast Script & Speech Player
+            - 💾 Multi-Format Export (.md, .txt, .html)
+          files: release-assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

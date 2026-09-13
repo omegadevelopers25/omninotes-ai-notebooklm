@@ -2,244 +2,241 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniNotes AI - NotebookLM Auto-Notes Maker & Studio</title>
-    <meta name="description" content="Automatically generate structured, comprehensive notes from URLs, YouTube transcripts, PDFs, and text sources and sync them directly into Gemini NotebookLM.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OmniNotes AI - Gemini & Notion Style Auto-Notes Maker</title>
+    <meta name="description" content="Gemini-style intelligent note maker with Notion dark design. Convert web articles, YouTube videos, and PDFs into structured NotebookLM notes.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="notion-dark-theme">
+    
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="mobile-brand">
+            <i class="fa-solid fa-sparkles gemini-sparkle"></i>
+            <span>OmniNotes AI</span>
+        </div>
+        <div class="mobile-header-actions">
+            <button class="icon-btn" id="btnMobileHistory" title="Saved History">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
+            <button class="icon-btn" id="btnMobileApiKey" title="Settings">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+        </div>
+    </header>
+
     <!-- App Container -->
-    <div class="app-wrapper">
+    <div class="app-layout">
         
-        <!-- Header / Navigation Bar -->
-        <header class="app-header">
-            <div class="brand">
-                <div class="logo-icon">
-                    <i class="fa-solid fa-brain"></i>
-                </div>
-                <div class="brand-text">
-                    <h1>OmniNotes <span>AI</span></h1>
-                    <span class="badge">Gemini NotebookLM Ready</span>
+        <!-- Sidebar Navigation (Notion Style) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="workspace-selector">
+                    <div class="workspace-avatar">
+                        <i class="fa-solid fa-sparkles"></i>
+                    </div>
+                    <div class="workspace-info">
+                        <span class="workspace-name">Gemini Notebook</span>
+                        <span class="workspace-sub">NotebookLM Studio</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="header-actions">
-                <button class="btn btn-outline" id="btnOpenApiKeyModal" title="Configure Gemini API Key">
-                    <i class="fa-solid fa-key"></i> <span id="apiKeyBadge">API Key</span>
-                </button>
-                <button class="btn btn-outline" id="btnBookmarkletModal" title="Get NotebookLM 1-Click Sync Bookmarklet">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> 1-Click Sync
-                </button>
-                <button class="btn btn-primary" id="btnNotebookLMDirect" onclick="window.open('https://notebooklm.google.com/', '_blank')">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> NotebookLM
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Dashboard Layout -->
-        <main class="dashboard-grid">
-            
-            <!-- LEFT PANEL: Source Ingestion & Workspace -->
-            <section class="panel source-panel">
-                <div class="panel-header">
-                    <h2><i class="fa-solid fa-layer-group"></i> Source Ingestion Hub</h2>
-                    <span class="subtitle">Import web links, videos, PDFs, or research topics</span>
-                </div>
-
-                <!-- Source Tabs -->
-                <div class="source-tabs" role="tablist">
-                    <button class="tab-btn active" data-tab="tab-web">
-                        <i class="fa-solid fa-globe"></i> Web Link
+            <!-- Source Quick Add Buttons -->
+            <div class="sidebar-section">
+                <div class="sidebar-label">SOURCES INGESTION</div>
+                <div class="source-pills-nav">
+                    <button class="source-pill active" data-type="web">
+                        <i class="fa-solid fa-globe"></i> Web Article
                     </button>
-                    <button class="tab-btn" data-tab="tab-youtube">
-                        <i class="fa-brands fa-youtube"></i> YouTube
+                    <button class="source-pill" data-type="youtube">
+                        <i class="fa-brands fa-youtube"></i> YouTube Video
                     </button>
-                    <button class="tab-btn" data-tab="tab-file">
-                        <i class="fa-solid fa-file-pdf"></i> File / PDF
+                    <button class="source-pill" data-type="file">
+                        <i class="fa-solid fa-file-pdf"></i> PDF / Doc File
                     </button>
-                    <button class="tab-btn" data-tab="tab-text">
+                    <button class="source-pill" data-type="text">
                         <i class="fa-solid fa-align-left"></i> Raw Text
                     </button>
-                    <button class="tab-btn" data-tab="tab-wiki">
+                    <button class="source-pill" data-type="wiki">
                         <i class="fa-solid fa-book-bookmark"></i> Wikipedia
                     </button>
                 </div>
+            </div>
 
-                <!-- Tab Contents -->
-                <div class="tab-content-container">
-                    
-                    <!-- TAB 1: Web Link -->
-                    <div class="tab-content active" id="tab-web">
-                        <div class="input-group">
-                            <label for="webUrlInput">Web Page / Article URL</label>
-                            <div class="input-with-btn">
-                                <input type="url" id="webUrlInput" placeholder="https://example.com/article-or-documentation" autocomplete="off">
-                                <button class="btn btn-accent" id="btnAddWebUrl">
-                                    <i class="fa-solid fa-plus"></i> Extract
-                                </button>
-                            </div>
-                            <span class="hint">Parses blogs, news, articles, medium posts, and documentation pages.</span>
+            <!-- Active Sources List -->
+            <div class="sidebar-section queue-section">
+                <div class="sidebar-label-row">
+                    <span>LOADED SOURCES (<span id="sourceCountBadge">0</span>)</span>
+                    <button class="text-btn danger" id="btnClearAllSources" style="display:none;">Clear</button>
+                </div>
+                <div class="sources-list" id="sourcesList">
+                    <div class="empty-sources">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <p>No sources loaded</p>
+                        <span>Add links, videos, or PDFs below</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer Settings -->
+            <div class="sidebar-footer">
+                <button class="sidebar-btn" id="btnOpenApiKeyModal">
+                    <i class="fa-solid fa-key"></i> <span id="apiKeyBadge">Gemini API Key</span>
+                </button>
+                <button class="sidebar-btn" id="btnBookmarkletModal">
+                    <i class="fa-solid fa-bolt"></i> 1-Click Sync
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace View (Gemini + Notion Canvas) -->
+        <main class="main-canvas">
+            
+            <!-- Canvas Top Toolbar -->
+            <div class="canvas-header">
+                <div class="canvas-title">
+                    <i class="fa-regular fa-file-lines"></i>
+                    <span id="canvasTitleText">Untitled NotebookLM Note</span>
+                </div>
+                
+                <div class="canvas-actions" id="canvasActions" style="display:none;">
+                    <button class="btn-notion btn-gemini-sync" id="btnCopyForNotebookLM">
+                        <i class="fa-solid fa-sparkles"></i> 1-Click Copy for NotebookLM
+                    </button>
+
+                    <div class="dropdown">
+                        <button class="btn-notion" id="btnExportDropdown">
+                            <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="exportMenu">
+                            <a href="#" id="exportMd"><i class="fa-solid fa-file-code"></i> Markdown (.md)</a>
+                            <a href="#" id="exportTxt"><i class="fa-solid fa-file-lines"></i> Plain Text (.txt)</a>
+                            <a href="#" id="exportHtml"><i class="fa-solid fa-code"></i> HTML Page</a>
                         </div>
                     </div>
 
-                    <!-- TAB 2: YouTube -->
-                    <div class="tab-content" id="tab-youtube">
-                        <div class="input-group">
-                            <label for="ytUrlInput">YouTube Video Link</label>
-                            <div class="input-with-btn">
-                                <input type="url" id="ytUrlInput" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
-                                <button class="btn btn-accent" id="btnAddYtUrl">
-                                    <i class="fa-solid fa-plus"></i> Fetch Transcript
-                                </button>
-                            </div>
-                            <span class="hint">Extracts full closed-caption transcripts from lectures, podcasts, & tutorials.</span>
+                    <button class="btn-notion icon-only" id="btnAudioPlayer" title="Listen to Overview">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Canvas Scrollable Content Body -->
+            <div class="canvas-body" id="noteDisplayArea">
+                <div class="gemini-welcome-container">
+                    <div class="gemini-sparkle-hero">
+                        <i class="fa-solid fa-sparkles"></i>
+                    </div>
+                    <h2>How can OmniNotes help you today?</h2>
+                    <p>Import your web links, video transcripts, or PDFs to synthesize structured, high-value notes ready for Google NotebookLM.</p>
+
+                    <!-- Quick Template Preset Cards (Gemini Style) -->
+                    <div class="template-grid">
+                        <div class="template-card active" data-template="notebooklm-master">
+                            <div class="card-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+                            <div class="card-title">NotebookLM Master Doc</div>
+                            <div class="card-desc">Executive summary, key thesis, deep dive, Q&A flashcards & podcast script.</div>
+                        </div>
+
+                        <div class="template-card" data-template="executive-briefing">
+                            <div class="card-icon"><i class="fa-solid fa-user-tie"></i></div>
+                            <div class="card-title">Executive Briefing</div>
+                            <div class="card-desc">Context, strategic insights, risk assessment, and recommendations.</div>
+                        </div>
+
+                        <div class="template-card" data-template="study-guide">
+                            <div class="card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <div class="card-title">Study Guide & Quiz</div>
+                            <div class="card-desc">Glossary terms, active-recall Q&A cards, and practice questions.</div>
+                        </div>
+
+                        <div class="template-card" data-template="mindmap-outline">
+                            <div class="card-icon"><i class="fa-solid fa-sitemap"></i></div>
+                            <div class="card-title">Structured Mind Map</div>
+                            <div class="card-desc">Hierarchical bullet tree with conceptual link matrix.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gemini Floating Prompt & Source Ingestion Bar -->
+            <div class="gemini-input-wrapper">
+                
+                <!-- Source Input Drawer Modals / Panels -->
+                <div class="source-input-popover" id="sourceInputPopover">
+                    <!-- Web Input -->
+                    <div class="popover-content" id="pop-web">
+                        <div class="popover-row">
+                            <i class="fa-solid fa-globe"></i>
+                            <input type="url" id="webUrlInput" placeholder="Paste article or web page URL..." autocomplete="off">
+                            <button class="btn-notion accent" id="btnAddWebUrl">Add</button>
                         </div>
                     </div>
 
-                    <!-- TAB 3: File Upload -->
-                    <div class="tab-content" id="tab-file">
-                        <div class="file-dropzone" id="fileDropzone">
-                            <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
-                            <p class="drop-text">Drag & drop your <strong>PDF, TXT, or MD</strong> file here</p>
-                            <p class="drop-subtext">or click to browse your computer</p>
+                    <!-- YouTube Input -->
+                    <div class="popover-content" id="pop-youtube" style="display:none;">
+                        <div class="popover-row">
+                            <i class="fa-brands fa-youtube"></i>
+                            <input type="url" id="ytUrlInput" placeholder="Paste YouTube video URL..." autocomplete="off">
+                            <button class="btn-notion accent" id="btnAddYtUrl">Transcript</button>
+                        </div>
+                    </div>
+
+                    <!-- File Dropzone -->
+                    <div class="popover-content" id="pop-file" style="display:none;">
+                        <div class="file-drop-mini" id="fileDropzone">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>Drop PDF / TXT / MD file here or click to browse</span>
                             <input type="file" id="fileInput" accept=".pdf,.txt,.md,.doc,.docx" hidden>
                         </div>
                     </div>
 
-                    <!-- TAB 4: Raw Text -->
-                    <div class="tab-content" id="tab-text">
-                        <div class="input-group">
-                            <label for="rawTextInput">Raw Note / Paste Content</label>
-                            <textarea id="rawTextInput" rows="4" placeholder="Paste raw notes, research snippets, meeting transcripts, or text here..."></textarea>
-                            <button class="btn btn-accent" id="btnAddRawText" style="margin-top: 10px;">
-                                <i class="fa-solid fa-plus"></i> Add Note Source
-                            </button>
+                    <!-- Raw Text Input -->
+                    <div class="popover-content" id="pop-text" style="display:none;">
+                        <div class="popover-col">
+                            <textarea id="rawTextInput" rows="3" placeholder="Paste raw notes or research content..."></textarea>
+                            <button class="btn-notion accent" id="btnAddRawText">Add Text Source</button>
                         </div>
                     </div>
 
-                    <!-- TAB 5: Wikipedia -->
-                    <div class="tab-content" id="tab-wiki">
-                        <div class="input-group">
-                            <label for="wikiQueryInput">Search Research Topic</label>
-                            <div class="input-with-btn">
-                                <input type="text" id="wikiQueryInput" placeholder="e.g. Quantum Computing, Transformer Models, Microservices" autocomplete="off">
-                                <button class="btn btn-accent" id="btnAddWiki">
-                                    <i class="fa-solid fa-magnifying-glass"></i> Search
-                                </button>
-                            </div>
-                            <span class="hint">Fetches comprehensive background summaries from Wikipedia.</span>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Active Sources Queue -->
-                <div class="sources-queue-container">
-                    <div class="queue-header">
-                        <h3><i class="fa-solid fa-list-check"></i> Loaded Sources (<span id="sourceCountBadge">0</span>)</h3>
-                        <button class="btn-text danger" id="btnClearAllSources" style="display:none;">Clear All</button>
-                    </div>
-
-                    <div class="sources-list" id="sourcesList">
-                        <div class="empty-queue-state">
-                            <i class="fa-solid fa-folder-open"></i>
-                            <p>No sources added yet.</p>
-                            <span>Add web links, videos, or files above to synthesize multi-source notes!</span>
+                    <!-- Wiki Search -->
+                    <div class="popover-content" id="pop-wiki" style="display:none;">
+                        <div class="popover-row">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                            <input type="text" id="wikiQueryInput" placeholder="Search Wikipedia research topic..." autocomplete="off">
+                            <button class="btn-notion accent" id="btnAddWiki">Search</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Note Synthesis Configuration -->
-                <div class="synthesis-config-card">
-                    <h3><i class="fa-solid fa-sliders"></i> Synthesis Options</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="templateSelect">Note Output Template</label>
-                            <select id="templateSelect">
-                                <option value="notebooklm-master">📘 NotebookLM Master Source Doc (Recommended)</option>
-                                <option value="executive-briefing">📑 Executive Briefing Doc</option>
-                                <option value="study-guide">🎓 Study Guide & Flashcard Set</option>
-                                <option value="mindmap-outline">🗺️ Structured Mind Map & Knowledge Tree</option>
-                                <option value="audio-podcast-script">🎙️ NotebookLM Podcast Script (2 Hosts)</option>
-                            </select>
-                        </div>
+                <!-- Gemini Prompt Container -->
+                <div class="gemini-prompt-box">
+                    <div class="prompt-chips">
+                        <button class="chip-btn active" id="chipTemplateBtn">
+                            <i class="fa-solid fa-sliders"></i> <span id="chipTemplateLabel">NotebookLM Master Doc</span>
+                        </button>
+                        <button class="chip-btn" id="chipSourceToggle">
+                            <i class="fa-solid fa-paperclip"></i> Add Sources
+                        </button>
                     </div>
 
-                    <div class="form-group">
-                        <label for="customPromptInput">Custom AI Guidance (Optional)</label>
-                        <input type="text" id="customPromptInput" placeholder="e.g. Focus on technical details, emphasize key dates, write ELI5...">
-                    </div>
-
-                    <button class="btn btn-generate" id="btnGenerateNotes" disabled>
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate NotebookLM Notes
-                    </button>
-                </div>
-
-            </section>
-
-            <!-- RIGHT PANEL: Generated Notes Studio & Preview -->
-            <section class="panel preview-panel">
-                <div class="panel-header">
-                    <h2><i class="fa-solid fa-file-pen"></i> Notes Studio & NotebookLM Export</h2>
-                    <div class="panel-header-actions">
-                        <button class="btn btn-outline sm" id="btnOpenHistoryDrawer">
-                            <i class="fa-solid fa-clock-rotate-left"></i> History
+                    <div class="prompt-input-row">
+                        <input type="text" id="customPromptInput" placeholder="Add custom instructions or prompt (e.g. Focus on technical details, ELI5)..." autocomplete="off">
+                        <button class="btn-generate-gemini" id="btnGenerateNotes" disabled title="Generate Notes">
+                            <i class="fa-solid fa-arrow-up"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Action Toolbar for Notes -->
-                <div class="note-toolbar" id="noteToolbar" style="display:none;">
-                    <div class="tool-group">
-                        <button class="btn btn-copy-notebooklm" id="btnCopyForNotebookLM">
-                            <i class="fa-solid fa-copy"></i> 1-Click Copy for NotebookLM
-                        </button>
-                    </div>
-
-                    <div class="tool-group">
-                        <div class="dropdown">
-                            <button class="btn btn-outline sm dropdown-toggle" id="btnExportDropdown">
-                                <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down"></i>
-                            </button>
-                            <div class="dropdown-menu" id="exportMenu">
-                                <a href="#" id="exportMd"><i class="fa-solid fa-file-code"></i> Markdown (.md)</a>
-                                <a href="#" id="exportTxt"><i class="fa-solid fa-file-lines"></i> Plain Text (.txt)</a>
-                                <a href="#" id="exportHtml"><i class="fa-solid fa-code"></i> HTML Page</a>
-                            </div>
-                        </div>
-                        <button class="btn btn-outline sm" id="btnAudioPlayer" title="Listen to text-to-speech overview">
-                            <i class="fa-solid fa-volume-high"></i> Listen
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Markdown Notes Display Area -->
-                <div class="note-display-area" id="noteDisplayArea">
-                    <div class="empty-note-state">
-                        <div class="icon-pulse">
-                            <i class="fa-solid fa-note-sticky"></i>
-                        </div>
-                        <h3>Your Generated Notes Will Appear Here</h3>
-                        <p>Import your sources on the left and click <strong>Generate NotebookLM Notes</strong> to create comprehensive, beautifully structured notes ready for NotebookLM.</p>
-                        <div class="notebooklm-tip-box">
-                            <i class="fa-solid fa-lightbulb"></i>
-                            <div>
-                                <strong>Why NotebookLM?</strong>
-                                <span>NotebookLM allows you to interact with your sources via AI, create audio podcasts, study guides, and Q&A. OmniNotes AI formats your notes to optimize NotebookLM's indexing performance!</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </section>
+            </div>
 
         </main>
     </div>
@@ -248,20 +245,20 @@
     <div class="modal-overlay" id="apiKeyModal">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-key"></i> Gemini API Key Settings</h3>
+                <h3><i class="fa-solid fa-key"></i> Gemini API Key</h3>
                 <button class="close-modal" id="btnCloseApiKeyModal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Provide your Google Gemini API Key to enable powerful AI synthesis. (If left blank, the app will use the high-performance built-in offline note generator).</p>
+                <p>Provide your Google Gemini API Key for deep generative notes synthesis. (Leave empty to use built-in smart offline generator).</p>
                 <div class="input-group">
-                    <label for="modalApiKeyInput">Google Gemini API Key</label>
+                    <label for="modalApiKeyInput">API Key</label>
                     <input type="password" id="modalApiKeyInput" placeholder="AIzaSy..." autocomplete="off">
-                    <span class="hint">Get a free key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></span>
+                    <span class="hint">Get key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></span>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="btnRemoveApiKey">Remove Key</button>
-                <button class="btn btn-accent" id="btnSaveApiKey">Save Key</button>
+                <button class="btn-notion" id="btnRemoveApiKey">Remove</button>
+                <button class="btn-notion accent" id="btnSaveApiKey">Save Key</button>
             </div>
         </div>
     </div>
@@ -270,36 +267,28 @@
     <div class="modal-overlay" id="bookmarkletModal">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> NotebookLM 1-Click Sync Bookmarklet</h3>
+                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> 1-Click NotebookLM Sync</h3>
                 <button class="close-modal" id="btnCloseBookmarkletModal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Drag the button below to your browser's Bookmarks Bar. When viewing <a href="https://notebooklm.google.com/" target="_blank">notebooklm.google.com</a>, click the bookmark to instantly sync your notes!</p>
-                <div class="bookmarklet-container">
-                    <a href="#" id="bookmarkletLink" class="bookmarklet-btn">
+                <p>Drag this bookmarklet to your browser bookmarks bar. Click it on <a href="https://notebooklm.google.com/" target="_blank">notebooklm.google.com</a> to sync notes automatically!</p>
+                <div class="bookmarklet-box">
+                    <a href="#" id="bookmarkletLink" class="bookmarklet-pill">
                         <i class="fa-solid fa-bolt"></i> Sync to NotebookLM
                     </a>
                 </div>
-                <div class="steps-box">
-                    <h4>How to use:</h4>
-                    <ol>
-                        <li>Drag the button above to your browser bookmarks bar.</li>
-                        <li>Click <strong>1-Click Copy for NotebookLM</strong> on your generated note.</li>
-                        <li>Go to <strong>NotebookLM</strong>, open a notebook, and click the bookmark!</li>
-                    </ol>
-                </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="btnCloseBookmarkletModal2">Done</button>
+                <button class="btn-notion" id="btnCloseBookmarkletModal2">Done</button>
             </div>
         </div>
     </div>
 
-    <!-- Saved History Drawer -->
+    <!-- History Drawer -->
     <div class="drawer-overlay" id="historyDrawer">
         <div class="drawer-content">
             <div class="drawer-header">
-                <h3><i class="fa-solid fa-clock-rotate-left"></i> Saved Notebooks Library</h3>
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Saved Notebooks</h3>
                 <button class="close-drawer" id="btnCloseHistoryDrawer">&times;</button>
             </div>
             <div class="drawer-body" id="historyList">
