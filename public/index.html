@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>OmniNotes AI - Gemini & Notion Style Auto-Notes Maker</title>
-    <meta name="description" content="Gemini-style intelligent note maker with Notion dark design. Convert web articles, YouTube videos, and PDFs into structured NotebookLM notes.">
+    <meta name="description" content="Gemini-style intelligent note maker with Notion design. Convert web articles, YouTube videos, and PDFs into structured NotebookLM notes.">
+    <!-- Android Status Bar Theme Colors -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FFFFFF">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#191919">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,13 +21,21 @@
     
     <!-- Mobile Header -->
     <header class="mobile-header">
-        <div class="mobile-brand">
-            <i class="fa-solid fa-sparkles gemini-sparkle"></i>
-            <span>OmniNotes AI</span>
+        <div class="mobile-header-left">
+            <button class="icon-btn" id="btnMobileMenu" title="Menu" aria-label="Open menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="mobile-brand">
+                <i class="fa-solid fa-sparkles gemini-sparkle"></i>
+                <span>OmniNotes AI</span>
+            </div>
         </div>
         <div class="mobile-header-actions">
             <button class="icon-btn" id="btnMobileHistory" title="Saved History">
                 <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
+            <button class="icon-btn theme-toggle-btn" id="btnMobileTheme" title="Toggle Theme">
+                <i class="fa-solid fa-sun"></i>
             </button>
             <button class="icon-btn" id="btnMobileApiKey" title="Settings">
                 <i class="fa-solid fa-sliders"></i>
@@ -93,6 +104,9 @@
                 </button>
                 <button class="sidebar-btn" id="btnBookmarkletModal">
                     <i class="fa-solid fa-bolt"></i> 1-Click Sync
+                </button>
+                <button class="sidebar-btn theme-toggle-btn" id="btnThemeToggle">
+                    <i class="fa-solid fa-sun"></i> <span class="theme-toggle-label">Light Mode</span>
                 </button>
             </div>
         </aside>
@@ -240,6 +254,9 @@
 
         </main>
     </div>
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- API Key Modal -->
     <div class="modal-overlay" id="apiKeyModal">
