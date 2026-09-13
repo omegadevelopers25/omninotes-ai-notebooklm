@@ -1,0 +1,79 @@
+name: Build Android APK & GitHub Release
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node Dependencies
+        run: npm install
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Initialize & Sync Capacitor Android Project
+        run: |
+          npx cap add android || true
+          npx cap sync android
+
+      - name: Make Gradle Executable
+        run: chmod +x android/gradlew
+
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Locate & Rename APK
+        run: |
+          mkdir -p build-output
+          cp android/app/build/outputs/apk/debug/app-debug.apk build-output/OmniNotes-AI-v1.0.0.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniNotes-AI-APK
+          path: build-output/OmniNotes-AI-v1.0.0.apk
+
+      - name: Create GitHub Release & Attach APK
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/master') || github.event_name == 'workflow_dispatch'
+        with:
+          tag_name: v1.0.0
+          name: OmniNotes AI v1.0.0 (Android APK)
+          body: |
+            ## 📱 OmniNotes AI - Android Release v1.0.0
+            
+            Automatically generated Android APK for OmniNotes AI - NotebookLM Auto-Notes Maker.
+            
+            ### Features included in this build:
+            - 🌐 Web Article Ingestion & Cleaner
+            - 📹 YouTube Transcript Extraction
+            - 📄 PDF & File Text Parser
+            - 🧠 Gemini AI & Smart Offline Note Synthesis
+            - 📋 1-Click Copy for Gemini Notebook (NotebookLM)
+            - 🎙️ Audio Podcast Script & Preview Player
+            - 💾 Export as Markdown, Plain Text, HTML
+          files: build-output/OmniNotes-AI-v1.0.0.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

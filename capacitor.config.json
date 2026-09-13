@@ -1,0 +1,10 @@
+{
+  "appId": "com.omninotes.ai",
+  "appName": "OmniNotes AI",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  }
+}
